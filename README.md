@@ -55,6 +55,6 @@ App mobile em Flutter para a Situação de Aprendizagem do Módulo 5 (PPDM). Reg
 | Qualidade da solução e apresentação         | 20     |
 | **Total**                                   | **100**|
 
-## Autor
+## Autores
 
-Daniel — Curso Técnico em Desenvolvimento de Sistemas (SESI)
+Daniel e Igor — Curso Técnico em Desenvolvimento de Sistemas (SESI)
