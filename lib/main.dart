@@ -29,7 +29,7 @@ class SenaiCheckInApp extends StatelessWidget {
   }
 }
 
-//Tela inicial: listagem de registros
+// Tela inicial: listagem de registros
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -97,7 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(registro.dataHora),
                 subtitle: Text(
-                  registro.observacao,
+                  '${MapaDefinitions.formatarCoordenadas(registro.latitude, registro.longitude)}'
+                  '${registro.observacao.isEmpty ? '' : ' • ${registro.observacao}'}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -134,6 +135,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
   String? _caminhoFoto;
   double? _latitude;
   double? _longitude;
+  double? _precisaoMetros;
   bool _carregandoFoto = false;
   bool _carregandoLocalizacao = false;
   bool _salvando = false;
@@ -171,7 +173,14 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
       setState(() {
         _latitude = posicao.latitude;
         _longitude = posicao.longitude;
+        _precisaoMetros = posicao.accuracy;
       });
+      if (!MapaDefinitions.precisaoAceitavel(posicao)) {
+        _mostrarErro(
+          'Precisão baixa (±${posicao.accuracy.toStringAsFixed(0)}m). '
+          'Tente novamente em local aberto para um registro mais confiável.',
+        );
+      }
     } catch (e) {
       _mostrarErro(e.toString());
     } finally {
@@ -200,7 +209,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
 
     await BancoHelper.instance.inserirRegistro(registro);
 
-    //Confirmação sonora ao salvar.
+    // Confirmação sonora ao salvar.
     await SystemSound.play(SystemSoundType.click);
 
     if (mounted) Navigator.of(context).pop(true);
@@ -253,6 +262,9 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
                   ? MapaDefinitions.formatarCoordenadas(_latitude!, _longitude!)
                   : 'Localização não obtida',
             ),
+            subtitle: _precisaoMetros != null
+                ? Text('Precisão: ±${_precisaoMetros!.toStringAsFixed(0)}m')
+                : null,
           ),
           ElevatedButton.icon(
             onPressed: _carregandoLocalizacao ? null : _obterLocalizacao,
@@ -286,7 +298,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
   }
 }
 
-//Tela de detalhe do registro
+// Tela de detalhe do registro
 
 class DetalheScreen extends StatelessWidget {
   final Registro registro;
